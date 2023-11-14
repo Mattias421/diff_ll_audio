@@ -1,0 +1,7 @@
+split: dev
+timesteps: 50
+checkpoint: /fastdata/acq22mc/exp/diff_ll_audio/speech-diff/resources/pretrained/grad-tts-ljs.pt
+out_dir: out
+n_evaluations: 500
+spk: 0
+use_16kHz: false
