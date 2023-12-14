@@ -1,6 +1,6 @@
 hydra:
   job:
-    name : 'uda_debug'
+    name : 'ljs_ll'
     chdir: true
     config:
       override_dirname:
@@ -9,20 +9,12 @@ hydra:
         exclude_keys:
           - data
   run:
-    dir: ../hydra_outputs/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ../../outputs/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   sweep:
     dir: ${hydra.run.dir}/${hydra.job.override_dirname}
     subdir: ${hydra.sweep.dir}
 
 data:
-  n_spks: 675
-  n_feats: 80
-  n_fft: 1024
-  sample_rate: 16000
-  hop_length: 256
-  win_length: 1024
-  f_min: 0
-  f_max: 8000
 
 model:
   spk_emb_dim: 128
@@ -46,14 +38,11 @@ model:
 training:
   tensorboard_dir: tb
   checkpoint_dir: checkpoints
-  test_size: 1
+  test_size: 0
   n_epochs: 500
-  batch_size: 16
+  batch_size: 1
   learning_rate: 1e-4
   seed: 612
   save_every: 1
   gpu: 0
-  num_workers: 30
-
-asr:
-  use_lm: true
+  num_workers: 1
