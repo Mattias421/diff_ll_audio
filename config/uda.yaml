@@ -1,0 +1,83 @@
+hydra:
+  job:
+    chdir: true
+
+data:
+  n_spks: 0
+  n_feats: 80
+  n_fft: 1024
+  target_sample_rate: 16000
+  sample_rate: 22050
+  hop_length: 256
+  win_length: 1024
+  f_min: 0
+  f_max: 8000
+
+eval:
+  split: dev
+  timesteps: 50
+  checkpoint: /fastdata/acq22mc/exp/diff_ll_audio/speechdiff/resources/pretrained/grad-tts-ljs.pt
+  out_dir: out
+  n_evaluations: 500
+  spk: 0
+  use_16kHz: false
+
+model:
+  spk_emb_dim: 128
+
+  encoder:
+    n_channels: 192
+    filter_channels: 768
+    filter_channels_dp: 256
+    n_layers: 6
+    kernel_size: 3
+    p_dropout: 0.1
+    n_heads: 2
+    window_size: 4
+
+  decoder:
+    dim: 64
+    beta_min: 0.05
+    beta_max: 20.0
+    pe_scale: 1000
+
+training:
+  tensorboard_dir: tb
+  checkpoint_dir: checkpoints
+  test_size: 1
+  n_epochs: 500
+  batch_size: 16
+  learning_rate: 1e-4
+  seed: 612
+  save_every: 1
+  gpu: 0
+  num_workers: 30
+
+asr:
+  use_lm: true
+  baseline: false
+
+uda:
+  kernel_size: 3
+  sigma: 1
+  encoding: forward_diffusion
+  decoding: euler
+  report_loglikelihood: false
+
+preprocessing:
+  rvad: true
+  source_sep: true
+
+slurm:
+  time: 4320
+  partition: dcs-gpu
+  account: dcs-res
+  mem_per_gpu: 64
+  gpus: 1
+  setup: ['module load Anaconda3/5.3.0', 'source activate speech-diff']
+  srun_args: ["--export=ALL"]
+  cpus_per_task: 1
+  cpus_per_gpu: 1
+
+dora:
+  dir: outputs
