@@ -1,0 +1,20 @@
+/fastdata/acq22mc/anaconda/.envs/speech-diff/lib/python3.10/site-packages/torch/utils/data/dataloader.py:557: UserWarning: This DataLoader will create 30 worker processes in total. Our suggested max number of worker in current system is 1, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+Initializing model...
+Number of encoder parameters = 7.20m
+Number of decoder parameters = 7.63m
+[2024-01-25 17:01:33,198][speechbrain.pretrained.fetching][INFO] - Fetch hyperparams.yaml: Delegating to Huggingface hub, source speechbrain/tts-hifigan-ljspeech.
+[2024-01-25 17:01:33,561][speechbrain.pretrained.fetching][INFO] - HF fetch: /home/acq22mc/.cache/huggingface/hub/models--speechbrain--tts-hifigan-ljspeech/snapshots/1399b22c520f1d4791969acb76e2b2e8d533e907/hyperparams.yaml
+[2024-01-25 17:01:33,563][speechbrain.pretrained.fetching][INFO] - Fetch custom.py: Delegating to Huggingface hub, source speechbrain/tts-hifigan-ljspeech.
+/fastdata/acq22mc/anaconda/.envs/speech-diff/lib/python3.10/site-packages/torch/nn/utils/weight_norm.py:30: UserWarning: torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.
+  warnings.warn("torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
+[2024-01-25 17:01:34,140][speechbrain.pretrained.fetching][INFO] - Fetch generator.ckpt: Delegating to Huggingface hub, source speechbrain/tts-hifigan-ljspeech.
+[2024-01-25 17:01:34,251][speechbrain.pretrained.fetching][INFO] - HF fetch: /home/acq22mc/.cache/huggingface/hub/models--speechbrain--tts-hifigan-ljspeech/snapshots/1399b22c520f1d4791969acb76e2b2e8d533e907/generator.ckpt
+[2024-01-25 17:01:34,252][speechbrain.utils.parameter_transfer][INFO] - Loading pretrained files for: generator
+Error executing job with overrides: ['+data=ljspeech', '+eval=eval']
+Traceback (most recent call last):
+  File "/mnt/fastdata/acq22mc/exp/diff_ll_audio/unconditional_ll/ll_exp.py", line 119, in main
+    result = {'init':ll_init.item(),
+RuntimeError: a Tensor with 16 elements cannot be converted to Scalar
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

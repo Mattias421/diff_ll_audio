@@ -10,18 +10,15 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 
-def bits_per_sample(log_likelihood, audio_len):
-    # bpd = log_likelihood / np.log(2)
-    # bps = bpd / audio_len
-    return log_likelihood / np.log(2) / audio_len
-
 class MyExplorer(Explorer):
+
+    talks = 'total'
+
     def get_grid_metrics(self) -> List[_Node]:
         return [
             tt.group('talks',[
                     
                     tt.group(talk_id, [
-                        tt.leaf('wer', '.2f'),
                         tt.leaf('tgt', '.2f'),
                         tt.leaf('src', '.2f'),
                     ], align='<')
@@ -41,47 +38,33 @@ class MyExplorer(Explorer):
 
         df = pd.DataFrame(history)
 
-        df['src_bps'] = df.apply(lambda x : bits_per_sample(x['ll_src'], x['audio_len']), axis=1)
-        df['tgt_bps'] = df.apply(lambda x : bits_per_sample(x['ll_tgt'], x['audio_len']), axis=1)
-
-        print()
-
-        wer = jwer(df['reference'].to_list(), df['hypothesis'].to_list())
-
         results = {}
 
         for talk in df['talk_id'].unique():
             df_t = df[df['talk_id'] == talk]
 
-            refs = df_t['reference'].to_list()
-            hyps = df_t['hypothesis'].to_list()
-
-            results[talk] = {'wer':jwer(refs, hyps),
-                             'src':df_t['src_bps'].mean(),
-                             'tgt':df_t['tgt_bps'].mean(),
+            results[talk] = {'src':df_t['asv_src'].mean(),
+                             'tgt':df_t['asv_tgt'].mean(),
             }
 
-        results['total'] = {'wer':wer,
-                            'tgt':df['tgt_bps'].mean(),
-                            'src':df['src_bps'].mean(),
-                            }
-        print(df['src_bps'].mean())
+        results['total'] = {'src':df['asv_src'].mean(),
+                             'tgt':df['asv_tgt'].mean(),
+            }
 
         self.talks = list(results.keys())
 
-        print(results)
-        
         return {'talks':results, 'completion':completion}
 
 @MyExplorer
 def explorer(launcher):
-    sub = launcher.bind({'uda.report_loglikelihood':True,
+    sub = launcher.bind({'uda.report_asv':True,
                          'uda.kernel_size':5,
                          'uda.sigma':1.0,
                          'preprocessing.rvad':False,
                          'preprocessing.source_sep':False})
     
     with launcher.job_array():
+        sub()
         for enc, dec in product(['prior_sampling', 'forward_diffusion', 'ode'], ['euler', 'ode']):
             sub({'uda.encoding':enc,
                  'uda.decoding':dec})

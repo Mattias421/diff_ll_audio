@@ -2,7 +2,6 @@ import numpy as np
 
 import torch
 from torch.utils.data import DataLoader, Dataset
-from torch.utils.tensorboard import SummaryWriter
 
 from omegaconf import DictConfig, OmegaConf
 import hydra

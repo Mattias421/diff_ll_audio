@@ -1,0 +1,6 @@
+[2024-01-25 17:01:33,198][speechbrain.pretrained.fetching][INFO] - Fetch hyperparams.yaml: Delegating to Huggingface hub, source speechbrain/tts-hifigan-ljspeech.
+[2024-01-25 17:01:33,561][speechbrain.pretrained.fetching][INFO] - HF fetch: /home/acq22mc/.cache/huggingface/hub/models--speechbrain--tts-hifigan-ljspeech/snapshots/1399b22c520f1d4791969acb76e2b2e8d533e907/hyperparams.yaml
+[2024-01-25 17:01:33,563][speechbrain.pretrained.fetching][INFO] - Fetch custom.py: Delegating to Huggingface hub, source speechbrain/tts-hifigan-ljspeech.
+[2024-01-25 17:01:34,140][speechbrain.pretrained.fetching][INFO] - Fetch generator.ckpt: Delegating to Huggingface hub, source speechbrain/tts-hifigan-ljspeech.
+[2024-01-25 17:01:34,251][speechbrain.pretrained.fetching][INFO] - HF fetch: /home/acq22mc/.cache/huggingface/hub/models--speechbrain--tts-hifigan-ljspeech/snapshots/1399b22c520f1d4791969acb76e2b2e8d533e907/generator.ckpt
+[2024-01-25 17:01:34,252][speechbrain.utils.parameter_transfer][INFO] - Loading pretrained files for: generator

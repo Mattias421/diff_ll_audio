@@ -194,10 +194,41 @@ def uda(cfg: DictConfig):
         source_separator = torchaudio.pipelines.CONVTASNET_BASE_LIBRI2MIX.get_model()
         source_separator.eval().cuda()
 
+    if cfg.uda.report_asv == True:
+        # automatic speaker verification
+        import nemo.collections.asr as nemo_asr
+        asv_model = nemo_asr.models.EncDecSpeakerLabelModel.from_pretrained(model_name='titanet_large')
+
+        @torch.no_grad()
+        def verify_speakers(path2audio_file1, path2audio_file2):
+            """
+            Verify if two audio files are from the same speaker or not.
+
+            Args:
+                path2audio_file1: path to audio wav file of speaker 1
+                path2audio_file2: path to audio wav file of speaker 2
+                threshold: cosine similarity score used as a threshold to distinguish two embeddings (default = 0.7)
+
+            Returns:
+                True if both audio files are from same speaker, False otherwise
+            """
+            embs1 = asv_model.get_embedding(path2audio_file1).squeeze()
+            embs2 = asv_model.get_embedding(path2audio_file2).squeeze()
+            # Length Normalize
+            X = embs1 / torch.linalg.norm(embs1)
+            Y = embs2 / torch.linalg.norm(embs2)
+            # Score
+            similarity_score = torch.dot(X, Y) / ((torch.dot(X, X) * torch.dot(Y, Y)) ** 0.5)
+            similarity_score = (similarity_score + 1) / 2
+
+            return similarity_score
+
     normalise = EnglishTextNormalizer()
     blur = GaussianBlur(kernel_size=cfg.uda.kernel_size, sigma=cfg.uda.sigma)
     resample = torchaudio.transforms.Resample(cfg.data.target_sample_rate,
                                               cfg.data.sample_rate)
+    downsample = torchaudio.transforms.Resample(cfg.data.sample_rate,
+                                              cfg.data.target_sample_rate)
 
 
     dataset = TEDLIUM(root='/fastdata/acq22mc/data/tedlium3/',
@@ -238,6 +269,15 @@ def uda(cfg: DictConfig):
                 gain_diff = (speech.pow(2).mean().sqrt()) / (sep_speech.pow(2).mean().sqrt())
                 speech = torchaudio.transforms.Vol(gain_diff)(sep_speech)
 
+            if cfg.uda.report_asv == True:
+                lj_path = '/fastdata/acq22mc/data/LJSpeech-1.1/wavs/LJ001-0001.wav'
+                os.makedirs('wavs', exist_ok=True)
+                ted_path = f'wavs/{speaker_id}_tgt.wav'
+                torchaudio.save(ted_path, speech, cfg.data.target_sample_rate)
+
+                asv_tgt = verify_speakers(lj_path, ted_path)
+
+
             speech = resample(speech) # speech should be [1 x time]
 
             if cfg.asr.baseline == False:
@@ -269,7 +309,16 @@ def uda(cfg: DictConfig):
                 
                 adapted_speech = vocoder.decode_batch(adapted_speech_spec.squeeze())
 
-                torchaudio.save(f'source_{speaker_id}.wav', adapted_speech, cfg.data.sample_rate)
+                os.makedirs('wavs', exist_ok=True)
+                uda_path = f'{speaker_id}_src.wav'
+                torchaudio.save(uda_path, adapted_speech, cfg.data.sample_rate)
+
+                if cfg.uda.report_asv:
+                    speech_downsample = downsample(adapted_speech)
+                    asv_path = 'asv' + uda_path
+                    torchaudio.save(asv_path, speech_downsample, cfg.data.target_sample_rate)
+
+                    asv_src = verify_speakers(lj_path, asv_path)
 
                 speech = adapted_speech
 
@@ -300,6 +349,11 @@ def uda(cfg: DictConfig):
                     'll_tgt': ll_tgt,
                     'll_src': ll_src,
                     'audio_len': audio_len
+                })
+            if cfg.uda.report_asv:
+                result_data.update({
+                    'asv_tgt':asv_tgt,
+                    'asv_src':asv_src
                 })
 
             xp.link.push_metrics(result_data)

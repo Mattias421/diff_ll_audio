@@ -1,0 +1,14 @@
+data:
+  train_filelist_path: /fastdata/acq22mc/exp/diff_ll_audio/resources/filelists/ljspeech/train.txt
+  dev_filelist_path: /fastdata/acq22mc/exp/diff_ll_audio/resources/filelists/ljspeech/valid.txt
+  test_filelist_path: /fastdata/acq22mc/exp/diff_ll_audio/resources/filelists/ljspeech/test.txt
+  cmudict_path: /fastdata/acq22mc/exp/diff_ll_audio/speechdiff/resources/cmu_dictionary
+  add_blank: true
+  n_spks: 0
+  n_feats: 80
+  n_fft: 1024
+  sample_rate: 22050
+  hop_length: 256
+  win_length: 1024
+  f_min: 0
+  f_max: 8000

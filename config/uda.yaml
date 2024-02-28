@@ -63,6 +63,7 @@ uda:
   encoding: forward_diffusion
   decoding: euler
   report_loglikelihood: false
+  report_asv: false
 
 preprocessing:
   rvad: true
