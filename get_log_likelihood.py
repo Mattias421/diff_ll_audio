@@ -1,12 +1,12 @@
-import yaml
+import json
 from model import GradTTS
 from text import text_to_sequence, cmudict
 from text.symbols import symbols
+from utils import intersperse
 import numpy as np
-import random
 import torch
 from torchdiffeq import odeint_adjoint as odeint
-import os
+import hydra
 import logging
 logger = logging.getLogger(__name__)
 
@@ -112,6 +112,9 @@ def ll_speech(text, spk, gtts, cmu,
 
     mu = y_enc
     spec = y_dec
+    max_len = fix_len_compatibility(spec.shape[-1])
+    mask = sequence_mask(torch.LongTensor([[spec.size(-1)]]), 
+                         max_len).to(spec)
 
     model = ScoreModel(gtts.decoder.estimator, mu, mask)
     ll, _, _, _ = log_likelihood(model,
@@ -124,10 +127,8 @@ def ll_speech(text, spk, gtts, cmu,
     audio_len = y_dec.shape(-1)
     return bits_per_dim(ll, audio_len), ll, y_dec.shape
 
-def main(args):
-
-    with open(args.config, 'r') as f:
-        cfg = yaml.load(f)
+@hydra.main(version_base=None, config_path='./config')
+def main(cfg):
 
     gtts = GradTTS(cfg)
     state_dict = torch.load(cfg.eval.checkpoint, map_location=lambda loc, storage: loc)
@@ -159,6 +160,11 @@ def main(args):
         for r in results:
             total += r['ll']
         logger.info(f'Current average LL is {total/len(results)}')
+
+    with open('results.json', 'w') as f:
+        json.dump(results, f)
+
+
 
 
 
